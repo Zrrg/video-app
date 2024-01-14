@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <GLFW/glfw3.h>
+#include "load_frame.h"
+ 
+
 
 int main(int argc, char * argv[])
 {
@@ -16,24 +19,17 @@ int main(int argc, char * argv[])
         return 1;
     }
 
-    unsigned char* data = new unsigned char[100 * 100 * 3];
+    int frame_width, frame_height;
+    unsigned char* frame_data;
 
-    /* red square */
-    for (int y = 0; y < 100; ++y) {
-        for (int x = 0; x < 100; ++x) {
-            data[y * 100 * 3 + x * 3    ] = 0xff;
-            data[y * 100 * 3 + x * 3 + 1] = 0x00;
-            data[y * 100 * 3 + x * 3 + 2] = 0x00;
-        }
+    if(!load_frame("/home/ukn/Videos/sample.mp4", &frame_width, &frame_height, &frame_data)) {
+        printf("Couldn't load video frame\n");
+        return 1;
     }
 
-
-
-    glfwMakeContextCurrent(window);
+     glfwMakeContextCurrent(window);
 
     GLuint tex_handle;
-    int tex_width = 100;
-    int tex_height = 100;
     glGenTextures(1, &tex_handle);
     glBindTexture(GL_TEXTURE_2D, tex_handle);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -42,7 +38,7 @@ int main(int argc, char * argv[])
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame_width, frame_height, 0, GL_RGB, GL_UNSIGNED_BYTE, frame_data);
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -61,10 +57,10 @@ int main(int argc, char * argv[])
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, tex_handle);
         glBegin(GL_QUADS);
-            glTexCoord2d(0,1); glVertex2i (200, 200);
-            glTexCoord2d(1,0); glVertex2i (200 + tex_width * 2, 200);
-            glTexCoord2d(1,1); glVertex2i (200 + tex_width * 2, 200 + tex_height * 2);
-            glTexCoord2d(0,1); glVertex2i (200, 200+ tex_height * 2);
+            glTexCoord2d(0,1); glVertex2i (0, frame_height);
+            glTexCoord2d(1,0); glVertex2i (frame_width, 0);
+            glTexCoord2d(1,1); glVertex2i (frame_width, frame_height);
+            glTexCoord2d(0,1); glVertex2i ( 0, frame_height);
         glEnd();
         glDisable(GL_TEXTURE_2D);
 
